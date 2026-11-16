@@ -1,0 +1,6 @@
+-r requirements.txt
+
+# tests and code quality (not shipped in the production image)
+pytest==8.4.2
+ruff==0.17.5
+mypy==2.4.1
