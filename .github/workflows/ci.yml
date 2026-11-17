@@ -1,0 +1,60 @@
+# Every push and pull request: the same checks a reviewer would run by hand.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: bus
+          POSTGRES_PASSWORD: bus
+          POSTGRES_DB: bus
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U bus" --health-interval 2s --health-timeout 3s --health-retries 30
+    env:
+      DATABASE_URL: postgresql+psycopg://bus:bus@localhost:5432/bus
+      TEST_DATABASE_URL: postgresql+psycopg://bus:bus@localhost:5432/bus_test
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Lint
+        run: ruff check .
+      - name: Type-check
+        run: mypy
+      - name: Migrations apply and match the models
+        run: alembic upgrade head && alembic check
+      - name: Tests (including real concurrent bookings on Postgres)
+        run: pytest
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Unit tests (validation, seats, dashboard, formatting)
+        run: npm test
+      - name: Type-check and build
+        run: npm run build
