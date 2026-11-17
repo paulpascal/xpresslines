@@ -1,0 +1,5 @@
+/* Times, prices, seat counts and references line up in columns. */
+.numbers {
+  font-variant-numeric: tabular-nums;
+}
+

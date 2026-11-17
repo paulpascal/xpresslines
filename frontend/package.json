@@ -1,0 +1,32 @@
+{
+  "name": "bus-booking-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fontsource-variable/manrope": "^5.3.0",
+    "@mantine/core": "^8.3.18",
+    "@mantine/hooks": "^8.3.18",
+    "@tabler/icons-react": "^3.52.0",
+    "html-to-image": "^1.11.13",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.8",
+    "vitest": "^3.2.7"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
