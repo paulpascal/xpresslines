@@ -1,0 +1,28 @@
+---
+title: "Overview: who uses it, and how a request travels"
+---
+flowchart LR
+  C["Customer<br/>searches and books"]
+  O["Operator<br/>watches trips, moves them on"]
+  UI["Web app<br/>React"]
+  NG["nginx<br/>serves the app,<br/>forwards /api"]
+  API["Flask API<br/>prices, books, guards the rules"]
+  DB[("PostgreSQL<br/>towns, trips, bookings")]
+
+  C --> UI
+  O --> UI
+  UI -->|"JSON /api/v1"| NG --> API --> DB
+
+  classDef ui fill:#EEF3FB,stroke:#2654A9,color:#0F2A54
+  classDef edge fill:#F1F3F5,stroke:#868E96,color:#343A40
+  classDef api fill:#D9E2F1,stroke:#2654A9,color:#0F2A54
+  classDef svc fill:#0F2A54,stroke:#0F2A54,color:#FFFFFF
+  classDef dom fill:#FFF3D6,stroke:#CA8400,color:#5C3D00
+  classDef infra fill:#F1F3F5,stroke:#495057,color:#212529
+  classDef db fill:#E6FCF5,stroke:#0CA678,color:#087F5B
+  classDef ok fill:#EBFBEE,stroke:#2F9E44,color:#2B8A3E
+  classDef ko fill:#FFF5F5,stroke:#E03131,color:#C92A2A
+  class C,O,UI ui
+  class NG edge
+  class API svc
+  class DB db

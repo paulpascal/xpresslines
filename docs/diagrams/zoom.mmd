@@ -1,0 +1,29 @@
+---
+title: "Zoom on the API: each layer, left to right"
+---
+flowchart LR
+  L1["<b>1. api/</b><br/><i>speaks HTTP</i><br/><br/>routes: validate, call a service<br/>schemas: request and response shapes<br/>errors: one error format"]
+  L2["<b>2. services/</b><br/><i>runs the use cases</i><br/><br/>BookingService: book, get<br/>TripService: search, dashboard, status<br/>lock_trip: locks the trip<br/>while booking"]
+  L3["<b>3. domain/</b><br/><i>holds the business rules</i><br/><br/>pricing: zone fares<br/>booking rules: on sale, not left, seats left<br/>lifecycle: Scheduled, Boarding,<br/>Departed, In transit,<br/>Arrived, Completed<br/>events: sent after each save<br/>(in process, no outbox)<br/>models: tables and checks"]
+  L4["<b>4. infra/</b><br/><i>plumbing</i><br/><br/>db: sessions, timeouts<br/>logs: JSON with request id"]
+  PG[("PostgreSQL")]
+
+  L1 -->|calls| L2
+  L2 -->|uses| L3
+  L2 -->|"reads, writes"| L4
+  L4 --> PG
+
+  classDef ui fill:#EEF3FB,stroke:#2654A9,color:#0F2A54
+  classDef edge fill:#F1F3F5,stroke:#868E96,color:#343A40
+  classDef api fill:#D9E2F1,stroke:#2654A9,color:#0F2A54
+  classDef svc fill:#0F2A54,stroke:#0F2A54,color:#FFFFFF
+  classDef dom fill:#FFF3D6,stroke:#CA8400,color:#5C3D00
+  classDef infra fill:#F1F3F5,stroke:#495057,color:#212529
+  classDef db fill:#E6FCF5,stroke:#0CA678,color:#087F5B
+  classDef ok fill:#EBFBEE,stroke:#2F9E44,color:#2B8A3E
+  classDef ko fill:#FFF5F5,stroke:#E03131,color:#C92A2A
+  class L1 api
+  class L2 svc
+  class L3 dom
+  class L4 infra
+  class PG db
