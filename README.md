@@ -12,7 +12,9 @@ Customers search trips between 6 Nigerian towns, see the zone fare and seats lef
 2. **Book:** the API locks that trip's row, checks the rules (on sale, not departed, seats left), saves the booking and returns a reference. A second customer racing for the same last seat waits until the first booking is saved (a few milliseconds), then gets "sold out".
 3. **Operate:** the dashboard lists all trips; the operator moves each one through Scheduled, Boarding, Departed, In transit, Arrived, Completed.
 
-Inside the API, layer by layer: [zoom](docs/diagrams/zoom.png).
+Inside the API, each layer has one job:
+
+![Inside the API](docs/diagrams/zoom.png)
 
 ## Run it
 
@@ -21,7 +23,11 @@ docker compose up --build   # add -d to run it in the background
 docker compose down         # stop it; add -v to also delete the data
 ```
 
-Customer http://localhost:8080 · Admin http://localhost:8080/admin · API docs http://localhost:8080/api/v1/docs/swagger
+| Open | Address |
+|---|---|
+| Book a trip | http://localhost:8080 |
+| Admin dashboard | http://localhost:8080/admin |
+| API docs | http://localhost:8080/api/v1/docs/swagger |
 
 Development: `make db setup migrate seed`, then `make api` and `make web`. Tests: `make test`. Checks: `make lint`.
 
@@ -42,6 +48,10 @@ curl -X POST "$API/bookings" -H 'Content-Type: application/json' \
 
 ## Entry points
 
-- Backend: `backend/app/__init__.py` (`create_app`, wiring), `api/routes.py` (HTTP), `services/booking.py` (booking with row lock), `domain/` (business rules).
-- Frontend: `frontend/src/main.tsx`, then `pages/` (layout only), `hooks/` (state and API calls), `lib/` (rules and formatting, tested in `frontend/tests/`), `components/` (display only).
+| To see... | Backend (`backend/app/`) | Frontend (`frontend/src/`) |
+|---|---|---|
+| How the app starts | `__init__.py` (`create_app`) | `main.tsx` |
+| Where a request or page arrives | `api/routes.py` | `pages/` |
+| How a booking is made, with the lock | `services/booking.py` | `hooks/useBookingFlow.ts` |
+| The business rules | `domain/` (fares, booking rules, trip lifecycle) | `lib/` (form checks, formatting) |
 
