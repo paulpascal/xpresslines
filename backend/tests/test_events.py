@@ -1,6 +1,7 @@
 """Side effects subscribe to domain events instead of living in the booking code."""
 
 import pytest
+from sqlalchemy import event
 
 from app.domain import errors, events
 from app.domain.lifecycle import TripStatus
@@ -45,3 +46,24 @@ def test_a_failing_subscriber_never_undoes_a_booking(session, make_trip):
     trip = make_trip()
     result = make_services(events=bus).booking(session).book(trip_id=trip.id, passenger_name="Ada", seats=1)
     assert result.created and session.get(Trip, trip.id).seats_booked == 1
+
+
+def test_nothing_is_read_from_the_database_after_a_booking_commits(session, make_trip):
+    # So a saved booking can never turn into an error for the customer.
+    trip = make_trip()
+    committed, after_commit = [], []
+
+    def on_commit(_session):
+        committed.append(True)
+
+    def on_statement(*_args, **_kwargs):
+        after_commit.append(bool(committed))
+
+    event.listen(session, "after_commit", on_commit)
+    event.listen(session.bind, "before_cursor_execute", on_statement)
+    try:
+        make_services().booking(session).book(trip_id=trip.id, passenger_name="Ada", seats=1)
+    finally:
+        event.remove(session.bind, "before_cursor_execute", on_statement)
+        event.remove(session, "after_commit", on_commit)
+    assert committed and True not in after_commit

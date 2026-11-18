@@ -72,6 +72,11 @@ class BookingService:
                     if idempotency_key and (existing := self._find_by_key(idempotency_key)):
                         return self._replay(existing, trip_id, passenger_name, seats)
                     booking = self._create(trip, passenger_name, seats, idempotency_key)
+                    # Built before the commit, sent after it: once the booking is
+                    # saved, nothing can fail on a database read.
+                    created = BookingCreated(
+                        booking.reference, trip_id, seats, booking.total_fare, trip.seats_available,
+                    )
             except IntegrityError:
                 # Either the same idempotency key committed in parallel (return
                 # that booking) or a reference collided (retry with a new one).
@@ -81,9 +86,7 @@ class BookingService:
                     raise
                 continue
 
-            self.events.publish(BookingCreated(
-                booking.reference, trip_id, seats, booking.total_fare, booking.trip.seats_available,
-            ))
+            self.events.publish(created)
             return BookingResult(booking, created=True)
         raise AssertionError("unreachable")
 
