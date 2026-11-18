@@ -57,6 +57,11 @@ class BookingService:
         passenger_name = normalize_passenger_name(passenger_name)
         self._validate(passenger_name, seats, idempotency_key)
 
+        # A retry of a booking already saved needs no lock: answer it at once,
+        # even if the key comes with another trip that is busy.
+        if idempotency_key and (existing := self._find_by_key(idempotency_key)):
+            return self._replay(existing, trip_id, passenger_name, seats)
+
         for attempt in range(1, MAX_BOOKING_ATTEMPTS + 1):
             try:
                 with committing(self.session):

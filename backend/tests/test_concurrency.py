@@ -3,13 +3,16 @@
 Each thread uses its own database connection, like separate web requests.
 """
 
+import time
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 
+import pytest
 from sqlalchemy import func, select
 
 from app.domain import errors
 from app.domain.models import Booking, Trip
+from app.services.locking import lock_trip
 
 from .conftest import booking_service
 
@@ -75,3 +78,18 @@ def test_double_click_on_the_last_seats_returns_the_booking_not_sold_out(session
     assert "refused" not in outcomes and len(set(outcomes)) == 1
     session.expire_all()
     assert session.get(Trip, trip.id).seats_booked == 14
+
+
+def test_key_reused_on_another_busy_trip_is_refused_at_once(session_factory, make_trip):
+    # The key already belongs to a booking on trip A. Sent again with trip B while
+    # someone holds B's lock, it must get the conflict now, not wait and time out.
+    trip_a, trip_b = make_trip().id, make_trip().id
+    with session_factory() as s:
+        booking_service(s).book(trip_id=trip_a, passenger_name="Ada Obi", seats=1, idempotency_key="reused")
+
+    with session_factory() as holder, holder.begin():
+        lock_trip(holder, trip_b)
+        started = time.perf_counter()
+        with session_factory() as s, pytest.raises(errors.IdempotencyConflict):
+            booking_service(s).book(trip_id=trip_b, passenger_name="Ada Obi", seats=1, idempotency_key="reused")
+        assert time.perf_counter() - started < 1  # the lock timeout is 2 s
