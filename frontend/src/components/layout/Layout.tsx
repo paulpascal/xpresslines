@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 
 const LINKS = [
   { key: 'book', href: '/', label: 'Book a trip' },
-  { key: 'admin', href: '/admin', label: 'Operator dashboard' },
+  { key: 'admin', href: '/admin', label: 'Admin dashboard' },
   { key: 'docs', href: '/api/v1/docs/swagger', label: 'API docs' },
 ] as const;
 
@@ -25,6 +25,9 @@ export function Layout({ active, children }: { active: Page; children: ReactNode
                 <Anchor
                   key={link.key}
                   href={link.href}
+                  // The current page reloads in place; the other views open in a new tab.
+                  target={active === link.key ? undefined : '_blank'}
+                  rel={active === link.key ? undefined : 'noopener noreferrer'}
                   c={active === link.key ? 'gold.4' : 'gray.3'}
                   fw={active === link.key ? 700 : 500}
                   underline="never"
