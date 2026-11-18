@@ -5,7 +5,7 @@ DATABASE_URL = os.environ.get(
     "DATABASE_URL", "postgresql+psycopg://bus:bus@localhost:55432/bus"
 )
 
-# Scaling knobs (see docs/SCALING.md): connections each API process may hold.
+# Scaling knobs: connections each API process may hold.
 DB_POOL_SIZE = int(os.environ.get("DB_POOL_SIZE", "5"))
 DB_MAX_OVERFLOW = int(os.environ.get("DB_MAX_OVERFLOW", "5"))
 THREADS = int(os.environ.get("THREADS", "4"))  # gunicorn threads per process

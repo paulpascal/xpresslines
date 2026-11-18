@@ -21,7 +21,7 @@ services:
     build: ./backend
     environment:
       DATABASE_URL: postgresql+psycopg://bus:bus@db:5432/bus
-      # Scaling knobs (docs/SCALING.md). Per process: THREADS <= DB_POOL_SIZE + DB_MAX_OVERFLOW.
+      # Scaling knobs. Per process: THREADS <= DB_POOL_SIZE + DB_MAX_OVERFLOW.
       WEB_CONCURRENCY: 2
       THREADS: 4
       DB_POOL_SIZE: 5

@@ -6,7 +6,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 EXPOSE 8000
 # Bookings are short and DB-bound: sync workers with threads. Scale by
-# configuration, not code (docs/SCALING.md).
+# configuration, not code.
 ENV WEB_CONCURRENCY=2 THREADS=4
 # Migrate, seed only if empty, then serve.
 CMD alembic upgrade head \
