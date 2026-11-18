@@ -30,7 +30,11 @@ export function DashboardPage() {
           <StatCard label="On the road" value={stats.onTheRoad} />
         </SimpleGrid>
 
-        <SegmentedControl data={FILTERS} value={board.filter} onChange={(v) => board.setFilter(v as StatusFilter)} />
+        <div>
+          <Text size="sm" fw={700} mb={6}>Filter by status</Text>
+          <SegmentedControl color="navy" size="md" fullWidth withItemsBorders={false} data={FILTERS} value={board.filter}
+            onChange={(v) => board.setFilter(v as StatusFilter)} />
+        </div>
         {board.error && <Alert color="red">{board.error}</Alert>}
 
         <TripsTable trips={board.visibleTrips} busyTripId={board.busyTripId} onAdvance={board.advance} />
